@@ -1,0 +1,36 @@
+ram block $__QLF_TDP36K {
+	byte 9;
+	abits 15;
+	widths 1 2 4 9 18 36 per_port;
+	cost 257;
+
+	init none;
+	port srsw "A" "B" {
+		width tied;
+		clock posedge;
+		# wen causes read even when ren is low
+		# map clken = wen || ren
+		clken;
+		wrbe_separate;
+		rdwr old;
+	}
+}
+
+# ram block $__QLF_TDP18K {
+#	byte 9;
+#	abits 14;
+#	widths 1 2 4 9 18 per_port;
+#	cost 129;
+#
+#	init none;
+#	port srsw "A" "B" {
+#		width tied;
+#		clock posedge;
+#		# wen causes read even when ren is low
+#		# map clken = wen || ren
+#		clken;
+#		wrbe_separate;
+#		rdwr old;
+#	}
+#}
+
