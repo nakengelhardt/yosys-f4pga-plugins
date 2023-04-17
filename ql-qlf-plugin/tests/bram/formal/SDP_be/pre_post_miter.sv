@@ -69,7 +69,7 @@ module miter(in_we, in_wd, in_wa, in_ra, in_clk, in_be);
         written[i] <= written[i] | in_be[i];
       end
 
-        assert property (written[i] && (in_ra == rand_addr) && !(in_we && in_wa == in_ra) |=> gold_rd[i*BYTEWIDTH+:BYTEWIDTH] == gate_rd[i*BYTEWIDTH+:BYTEWIDTH]);
+        assert property (written[i] && (in_ra == rand_addr) |=> gold_rd[i*BYTEWIDTH+:BYTEWIDTH] == gate_rd[i*BYTEWIDTH+:BYTEWIDTH]);
         // cover property (written[i] && (in_ra == rand_addr) ##1 gold_rd[i*BYTEWIDTH+:BYTEWIDTH] == gate_rd[i*BYTEWIDTH+:BYTEWIDTH]);
       
     end

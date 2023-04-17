@@ -115,39 +115,35 @@ assign WEN_B1_i = PORT_B_CLK_EN & PORT_B_WR_EN;
 assign {BE_B2_i, BE_B1_i} = PORT_B_WR_BE;
 
 case (PORT_A_WIDTH)
-// 1,2,4,8,16: assign WDATA_A1_i = PORT_A_WR_DATA;
 9: assign { WDATA_A1_i[16], WDATA_A1_i[7:0] } = PORT_A_WR_DATA;
 18: assign { WDATA_A1_i[17], WDATA_A1_i[15:8], WDATA_A1_i[16], WDATA_A1_i[7:0] } = PORT_A_WR_DATA;
 32: assign { WDATA_A2_i[15:0], WDATA_A1_i[15:0] } = PORT_A_WR_DATA;
 36: assign { WDATA_A2_i[17], WDATA_A2_i[15:8], WDATA_A2_i[16], WDATA_A2_i[7:0], WDATA_A1_i[17], WDATA_A1_i[15:8], WDATA_A1_i[16], WDATA_A1_i[7:0]} = PORT_A_WR_DATA;
-default: assign WDATA_A1_i = PORT_A_WR_DATA;
+default: assign WDATA_A1_i = PORT_A_WR_DATA; // 1,2,4,8,16
 endcase
 
 case (PORT_B_WIDTH)
-// 1,2,4,8,16: assign WDATA_B1_i = PORT_B_WR_DATA;
 9: assign { WDATA_B1_i[16], WDATA_B1_i[7:0] } = PORT_B_WR_DATA;
 18: assign { WDATA_B1_i[17], WDATA_B1_i[15:8], WDATA_B1_i[16], WDATA_B1_i[7:0] } = PORT_B_WR_DATA;
 32: assign { WDATA_B2_i[15:0], WDATA_B1_i[15:0] } = PORT_B_WR_DATA;
 36: assign { WDATA_B2_i[17], WDATA_B2_i[15:8], WDATA_B2_i[16], WDATA_B2_i[7:0], WDATA_B1_i[17], WDATA_B1_i[15:8], WDATA_B1_i[16], WDATA_B1_i[7:0]} = PORT_B_WR_DATA;
-default: assign WDATA_B1_i = PORT_B_WR_DATA;
+default: assign WDATA_B1_i = PORT_B_WR_DATA; // 1,2,4,8,16
 endcase
 
 case (PORT_A_WIDTH)
-// 1,2,4,8,16: assign PORT_A_RD_DATA = RDATA_A1_o;
 9: assign PORT_A_RD_DATA = { RDATA_A1_o[16], RDATA_A1_o[7:0] };
 18: assign PORT_A_RD_DATA = { RDATA_A1_o[17], RDATA_A1_o[15:8], RDATA_A1_o[16], RDATA_A1_o[7:0] };
 32: assign PORT_A_RD_DATA = { RDATA_A2_o[15:0], RDATA_A1_o[15:0] };
 36: assign PORT_A_RD_DATA = { RDATA_A2_o[17], RDATA_A2_o[15:8], RDATA_A2_o[16], RDATA_A2_o[7:0], RDATA_A1_o[17], RDATA_A1_o[15:8], RDATA_A1_o[16], RDATA_A1_o[7:0]};
-default: assign PORT_A_RD_DATA = RDATA_A1_o;
+default: assign PORT_A_RD_DATA = RDATA_A1_o; // 1,2,4,8,16
 endcase
 
 case (PORT_B_WIDTH)
-// 1,2,4,8,16: assign PORT_B_RD_DATA = RDATA_B1_o;
 9: assign PORT_B_RD_DATA = { RDATA_B1_o[16], RDATA_B1_o[7:0] };
 18: assign PORT_B_RD_DATA = { RDATA_B1_o[17], RDATA_B1_o[15:8], RDATA_B1_o[16], RDATA_B1_o[7:0] };
 32: assign PORT_B_RD_DATA = { RDATA_B2_o[15:0], RDATA_B1_o[15:0] };
 36: assign PORT_B_RD_DATA = { RDATA_B2_o[17], RDATA_B2_o[15:8], RDATA_B2_o[16], RDATA_B2_o[7:0], RDATA_B1_o[17], RDATA_B1_o[15:8], RDATA_B1_o[16], RDATA_B1_o[7:0]};
-default: assign PORT_B_RD_DATA = RDATA_B1_o;
+default: assign PORT_B_RD_DATA = RDATA_B1_o; // 1,2,4,8,16
 endcase
 
 defparam _TECHMAP_REPLACE_.MODE_BITS = { SPLIT_i,
@@ -194,8 +190,41 @@ TDP36K _TECHMAP_REPLACE_ (
 
 endmodule
 
-module \$__QLF_TDP2x18K (...);
+module \$__QLF_BRAM18_SDP (...);
 
-	wire _TECHMAP_FAIL_ = 1'b1;
+// parameter INIT = 0;
+
+parameter PORT_B_WR_EN_WIDTH = 1;
+parameter WIDTH = 1;
+
+localparam ADDR_WIDTH = 14;
+
+input CLK_C;
+
+input [ADDR_WIDTH-1:0] PORT_A_ADDR;
+input PORT_A_CLK;
+input PORT_A_CLK_EN;
+output [WIDTH-1:0] PORT_A_RD_DATA;
+
+input [ADDR_WIDTH-1:0] PORT_B_ADDR;
+input PORT_B_CLK;
+input PORT_B_CLK_EN;
+input [PORT_B_WR_EN_WIDTH-1:0] PORT_B_WR_EN;
+input [WIDTH-1:0] PORT_B_WR_DATA;
+
+(* is_inferred = 1 *)
+$__QLF_FACTOR_BRAM18_SDP #(
+	.CFG_DBITS(WIDTH),
+	.CFG_ABITS(ADDR_WIDTH),
+	.CFG_ENABLE_B(PORT_B_WR_EN_WIDTH)
+) _TECHMAP_REPLACE_ (
+	.CLK1(CLK_C),
+	.A1EN(PORT_A_CLK_EN),
+	.A1ADDR(PORT_A_ADDR),
+	.A1DATA(PORT_A_RD_DATA),
+	.B1EN(PORT_B_WR_EN),
+	.B1ADDR(PORT_B_ADDR),
+	.B1DATA(PORT_B_WR_DATA)
+);
 
 endmodule

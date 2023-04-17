@@ -242,6 +242,7 @@ struct SynthQuickLogicPass : public ScriptPass {
 
     void script() override
     {
+        std::string noDFFArgs;
         if (check_label("begin")) {
             std::string family_path = " " + lib_path + family;
             std::string readVelArgs;
@@ -270,7 +271,6 @@ struct SynthQuickLogicPass : public ScriptPass {
             run("opt_expr");
             run("opt_clean");
 
-            std::string noDFFArgs;
             if (nosdff) {
                 noDFFArgs += " -nosdff";
             }
@@ -358,7 +358,7 @@ struct SynthQuickLogicPass : public ScriptPass {
             }
         }
 
-        if (check_label("coarse") {
+        if (check_label("coarse")) {
             run("techmap -map +/cmp2lut.v -D LUT_WIDTH=4");
             run("opt_expr");
             run("opt_clean");

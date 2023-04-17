@@ -60,7 +60,7 @@ module miter(in_we, in_wd, in_wa, in_ra, in_clk);
     if(in_we && in_wa == rand_addr) begin
       written <= 1'b1;
     end
-    assert property (written && (in_ra == rand_addr) && !(in_we && in_wa == in_ra) |=> gold_rd == gate_rd);
+    assert property (written && (in_ra == rand_addr) |=> gold_rd == gate_rd);
     // cover property (written && (in_ra == rand_addr) && !(in_we && in_wa == in_ra));
   end
 
