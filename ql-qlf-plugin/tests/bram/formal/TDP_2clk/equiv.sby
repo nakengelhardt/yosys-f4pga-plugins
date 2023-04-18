@@ -1,7 +1,7 @@
 [options]
 mode bmc
-depth 10
-multiclock off
+depth 8
+multiclock on
 
 [engines]
 smtbmc boolector

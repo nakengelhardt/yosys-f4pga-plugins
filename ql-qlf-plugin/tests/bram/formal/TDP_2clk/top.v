@@ -26,7 +26,7 @@ always @(posedge clk_a) begin
 
 end
 
-always @(posedge clk_a) begin
+always @(posedge clk_b) begin
 	if(we_b) begin
 		mem[a_b] <= wd_b;
 	end
