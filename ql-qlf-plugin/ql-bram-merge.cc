@@ -1,0 +1,201 @@
+/*
+ *  yosys -- Yosys Open SYnthesis Suite
+ *
+ *  Copyright (C) 2023  N. Engelhardt <nak@yosyshq.com>
+ *
+ *  Permission to use, copy, modify, and/or distribute this software for any
+ *  purpose with or without fee is hereby granted, provided that the above
+ *  copyright notice and this permission notice appear in all copies.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ */
+
+#include "kernel/log.h"
+#include "kernel/register.h"
+#include "kernel/rtlil.h"
+#include "kernel/sigtools.h"
+
+USING_YOSYS_NAMESPACE
+PRIVATE_NAMESPACE_BEGIN
+
+// ============================================================================
+
+
+
+struct QlBramMergeWorker {
+
+    const RTLIL::IdString split_cell_type = ID($__QLF_TDP36K_SPLIT);
+    const RTLIL::IdString merged_cell_type = ID($__QLF_TDP36K_MERGED);
+
+    typedef dict<RTLIL::IdString, RTLIL::Const> MergeableGroupKeyType;
+
+    RTLIL::Module *module;
+    SigMap sigmap;
+    dict<MergeableGroupKeyType, pool<RTLIL::Cell*>> megreable_groups;
+
+    pool<RTLIL::Cell*> to_delete;
+
+    QlBramMergeWorker(RTLIL::Module* module) : module(module), sigmap(module)
+    {
+        for (RTLIL::Cell* cell : module->selected_cells())
+        {
+            if(cell->type != split_cell_type) continue;
+            megreable_groups[get_key(cell)].insert(cell);
+        }
+    }
+
+    static MergeableGroupKeyType get_key(RTLIL::Cell* cell)
+    {
+        MergeableGroupKeyType key;
+        return key;
+    }
+
+    const dict<RTLIL::IdString, RTLIL::IdString>& param_map(bool second)
+    {
+        static const dict<RTLIL::IdString, RTLIL::IdString> bram1_map = {
+            { ID(INIT),                     ID(INIT1) },
+            { ID(WIDTH),                    ID(WIDTH1) },
+            { ID(PORT_A_WR_BE_WIDTH),       ID(PORT_A1_WR_BE_WIDTH) },
+            { ID(PORT_B_WR_BE_WIDTH),       ID(PORT_B1_WR_BE_WIDTH) }
+        };
+        static const dict<RTLIL::IdString, RTLIL::IdString> bram2_map = {
+            { ID(INIT),                     ID(INIT2) },
+            { ID(WIDTH),                    ID(WIDTH2) },
+            { ID(PORT_A_WR_BE_WIDTH),       ID(PORT_A2_WR_BE_WIDTH) },
+            { ID(PORT_B_WR_BE_WIDTH),       ID(PORT_B2_WR_BE_WIDTH) }
+        };
+
+        if(second)
+            return bram2_map;
+        else
+            return bram1_map;
+    }
+
+    const dict<RTLIL::IdString, RTLIL::IdString>& port_map(bool second)
+    {
+        static const dict<RTLIL::IdString, RTLIL::IdString> bram1_map = {
+            { ID(PORT_A_CLK),       ID(PORT_A1_CLK) },
+            { ID(PORT_B_CLK),       ID(PORT_B1_CLK) },
+            { ID(PORT_A_CLK_EN),    ID(PORT_A1_CLK_EN) },
+            { ID(PORT_B_CLK_EN),    ID(PORT_B1_CLK_EN) },
+            { ID(PORT_A_ADDR),      ID(PORT_A1_ADDR) },
+            { ID(PORT_B_ADDR),      ID(PORT_B1_ADDR) },
+            { ID(PORT_A_WR_DATA),   ID(PORT_A1_WR_DATA) },
+            { ID(PORT_B_WR_DATA),   ID(PORT_B1_WR_DATA) },
+            { ID(PORT_A_WR_EN),     ID(PORT_A1_WR_EN) },
+            { ID(PORT_B_WR_EN),     ID(PORT_B1_WR_EN) },
+            { ID(PORT_A_WR_BE),     ID(PORT_A1_WR_BE) },
+            { ID(PORT_B_WR_BE),     ID(PORT_B1_WR_BE) },
+            { ID(PORT_A_RD_DATA),   ID(PORT_A1_RD_DATA) },
+            { ID(PORT_B_RD_DATA),   ID(PORT_B1_RD_DATA) }
+        };
+        static const dict<RTLIL::IdString, RTLIL::IdString> bram2_map = {
+            { ID(PORT_A_CLK),       ID(PORT_A2_CLK) },
+            { ID(PORT_B_CLK),       ID(PORT_B2_CLK) },
+            { ID(PORT_A_CLK_EN),    ID(PORT_A2_CLK_EN) },
+            { ID(PORT_B_CLK_EN),    ID(PORT_B2_CLK_EN) },
+            { ID(PORT_A_ADDR),      ID(PORT_A2_ADDR) },
+            { ID(PORT_B_ADDR),      ID(PORT_B2_ADDR) },
+            { ID(PORT_A_WR_DATA),   ID(PORT_A2_WR_DATA) },
+            { ID(PORT_B_WR_DATA),   ID(PORT_B2_WR_DATA) },
+            { ID(PORT_A_WR_EN),     ID(PORT_A2_WR_EN) },
+            { ID(PORT_B_WR_EN),     ID(PORT_B2_WR_EN) },
+            { ID(PORT_A_WR_BE),     ID(PORT_A2_WR_BE) },
+            { ID(PORT_B_WR_BE),     ID(PORT_B2_WR_BE) },
+            { ID(PORT_A_RD_DATA),   ID(PORT_A2_RD_DATA) },
+            { ID(PORT_B_RD_DATA),   ID(PORT_B2_RD_DATA) }
+        };
+
+        if(second)
+            return bram2_map;
+        else
+            return bram1_map;
+    }
+
+    void merge_brams(RTLIL::Cell* bram1, RTLIL::Cell* bram2)
+    {
+
+        // Create the new cell
+        RTLIL::Cell* merged = module->addCell(NEW_ID, merged_cell_type);
+        log_debug("Merging split BRAM cells %s and %s -> %s\n", log_id(bram1->name), log_id(bram2->name), log_id(merged->name));
+
+        for (auto &it : param_map(false))
+        {
+            if(bram1->hasParam(it.first))
+                merged->setParam(it.second, bram1->getParam(it.first));
+        }
+        for (auto &it : param_map(true))
+        {
+            if(bram2->hasParam(it.first))
+                merged->setParam(it.second, bram2->getParam(it.first));
+        }
+
+        for (auto &it : port_map(false))
+        {
+            merged->setPort(it.second, bram1->getPort(it.first));
+        }
+        for (auto &it : port_map(true))
+        {
+            merged->setPort(it.second, bram2->getPort(it.first));
+        }
+
+        // Remove the old cells
+        to_delete.insert(bram1);
+        to_delete.insert(bram2);
+
+    }
+
+    void merge_bram_groups()
+    {
+        for (auto &it : megreable_groups)
+        {
+            while (it.second.size() > 1)
+            {
+                merge_brams(it.second.pop(), it.second.pop());
+            }
+        }
+        for (auto c: to_delete)
+            module->remove(c);
+    }
+
+};
+
+struct QlBramMergePass : public Pass {
+    
+    QlBramMergePass() : Pass("ql_bram_merge", "Infers QuickLogic k6n10f BRAM pairs that can operate independently") {}
+
+    void help() override
+    {
+        //   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
+        log("\n");
+        log("    ql_bram_merge [selection]\n");
+        log("\n");
+        log("    This pass identifies k6n10f 18K BRAM cells and packs pairs of them together\n");
+        log("    into a TDP36K cell operating in split mode\n");
+        log("\n");
+    }
+
+
+
+    void execute(std::vector<std::string> args, RTLIL::Design *design) override
+    {
+        log_header(design, "Executing QL_BRAM_MERGE pass.\n");
+
+        for (RTLIL::Module* module : design->selected_modules())
+        {
+            QlBramMergeWorker worker(module);
+            worker.merge_bram_groups();
+        }
+    }
+
+
+} QlBramMergePass;
+
+PRIVATE_NAMESPACE_END

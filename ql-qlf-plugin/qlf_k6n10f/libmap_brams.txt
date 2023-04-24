@@ -1,10 +1,9 @@
-ram block $__QLF_TDP36K {
+ram block $__QLF_TDP36K_SIMPLE {
+	init none;
 	byte 9;
 	abits 15;
 	widths 1 2 4 9 18 36 per_port;
 	cost 257;
-
-	init none;
 	port srsw "A" "B" {
 		width tied;
 		clock posedge;
@@ -14,15 +13,14 @@ ram block $__QLF_TDP36K {
 		wrbe_separate;
 		rdwr old;
 	}
-}
 
-ram block $__QLF_BRAM18_TDP {
+}
+ram block $__QLF_TDP36K_SPLIT {
+	init none;
 	byte 9;
 	abits 14;
 	widths 1 2 4 9 18 global;
-	cost 130;
-
-	init none;
+	cost 129;
 	port srsw "A" "B" {
 		clock posedge;
 		# wen causes read even when ren is low
@@ -33,20 +31,46 @@ ram block $__QLF_BRAM18_TDP {
 	}
 }
 
-ram block $__QLF_BRAM18_SDP {
-	byte 9;
-	abits 14;
-	widths 1 2 4 9 18 global;
-	cost 129;
 
-	init none;
-	port sr "A" {
-		clock posedge "C";
-		clken;
-	}
+# ram block $__QLF_BRAM18_TDP {
+#	init none;
+#	byte 9;
+#
+#	abits 14;
+#	widths 1 2 4 9 18 global;
+#	cost 130;
+#
+#	port sr "A" {
+#		clock posedge;
+#		clken;
+#	}
+#	port sw "B" {
+#		clock posedge;
+#	}
+#	port sr "C" {
+#		clock posedge;
+#		clken;
+#	}
+#	port sw "D" {
+#		clock posedge;
+#	}
+#}
 
-	port sw "B" {
-		clock posedge "C";
-		clken;
-	}
-}
+#ram block $__QLF_BRAM18_SDP {
+#	init none;
+#	byte 9;
+#
+#	abits 14;
+#	widths 1 2 4 9 18 global;
+#	cost 129;
+#
+#	port sr "A" {
+#		clock posedge "1";
+#		clken;
+#	}
+#
+#	port sw "B" {
+#		clock posedge "1";
+#		clken;
+#	}
+#}
