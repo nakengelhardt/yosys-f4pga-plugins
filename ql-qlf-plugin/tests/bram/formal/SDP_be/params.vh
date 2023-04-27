@@ -1,10 +1,7 @@
-localparam WABITS = 12;
-localparam WDBITS = 18;
+localparam ABITS = 10;
+localparam DBITS = 18;
 
-localparam RABITS = WABITS;
-localparam RDBITS = WDBITS;
-
-localparam DEPTH = 2**WABITS;
+localparam DEPTH = 2**ABITS;
 
 localparam BYTEWIDTH = 9;
-localparam NBYTES = WDBITS/BYTEWIDTH;
+localparam NBYTES = DBITS/BYTEWIDTH;

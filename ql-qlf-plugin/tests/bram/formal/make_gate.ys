@@ -6,12 +6,16 @@ design -save pre_map
 synth_quicklogic -top top -family qlf_k6n10f -run map_bram:
 stat; tee -o top.old select -count t:TDP36K
 dump -o top.TDP36K.old.il t:TDP36K
+hierarchy -purge_lib
 write_rtlil top.old.il
 design -load pre_map
 debug memory_libmap -lib ../../../../qlf_k6n10f/libmap_brams.txt
 debug ql_bram_merge
 techmap -map ../../../../qlf_k6n10f/libmap_brams_map.v
-opt
+opt -full
+check
 stat; tee -o top.new select -count t:TDP36K
 dump -o top.TDP36K.new.il t:TDP36K
+hierarchy -purge_lib
 write_rtlil top.new.il
+write_verilog top.new.v

@@ -5,20 +5,20 @@
 module gold(clk1, ra1, rd1, re1, wa1, wd1, we1, be1, clk2, ra2, rd2, re2, wa2, wd2, we2, be2);
 
 input wire clk1;
-input wire [RABITS-1:0] ra1;
-output reg [RDBITS-1:0] rd1;
+input wire [ABITS-1:0] ra1;
+output reg [DBITS-1:0] rd1;
 input wire re1;
-input wire [WABITS-1:0] wa1;
-input wire [WDBITS-1:0] wd1;
+input wire [ABITS-1:0] wa1;
+input wire [DBITS-1:0] wd1;
 input wire we1;
 input wire [NBYTES-1:0] be1;
 
 input wire clk2;
-input wire [RABITS-1:0] ra2;
-output reg [RDBITS-1:0] rd2;
+input wire [ABITS-1:0] ra2;
+output reg [DBITS-1:0] rd2;
 input wire re2;
-input wire [WABITS-1:0] wa2;
-input wire [WDBITS-1:0] wd2;
+input wire [ABITS-1:0] wa2;
+input wire [DBITS-1:0] wd2;
 input wire we2;
 input wire [NBYTES-1:0] be2;
 
@@ -28,20 +28,20 @@ endmodule
 module gate(clk1, ra1, rd1, re1, wa1, wd1, we1, be1, clk2, ra2, rd2, re2, wa2, wd2, we2, be2);
 
 input wire clk1;
-input wire [RABITS-1:0] ra1;
-output reg [RDBITS-1:0] rd1;
+input wire [ABITS-1:0] ra1;
+output reg [DBITS-1:0] rd1;
 input wire re1;
-input wire [WABITS-1:0] wa1;
-input wire [WDBITS-1:0] wd1;
+input wire [ABITS-1:0] wa1;
+input wire [DBITS-1:0] wd1;
 input wire we1;
 input wire [NBYTES-1:0] be1;
 
 input wire clk2;
-input wire [RABITS-1:0] ra2;
-output reg [RDBITS-1:0] rd2;
+input wire [ABITS-1:0] ra2;
+output reg [DBITS-1:0] rd2;
 input wire re2;
-input wire [WABITS-1:0] wa2;
-input wire [WDBITS-1:0] wd2;
+input wire [ABITS-1:0] wa2;
+input wire [DBITS-1:0] wd2;
 input wire we2;
 input wire [NBYTES-1:0] be2;
 
@@ -50,27 +50,27 @@ endmodule
 module miter(in_clk1, in_ra1, in_re1, in_wa1, in_wd1, in_we1, in_be1, in_clk2, in_ra2, in_re2, in_wa2, in_wd2, in_we2, in_be2);
 
 input wire in_clk1;
-input wire [RABITS-1:0] in_ra1;
+input wire [ABITS-1:0] in_ra1;
 input wire in_re1;
-input wire [WABITS-1:0] in_wa1;
-input wire [WDBITS-1:0] in_wd1;
+input wire [ABITS-1:0] in_wa1;
+input wire [DBITS-1:0] in_wd1;
 input wire in_we1;
 input wire [NBYTES-1:0] in_be1;
 
 input wire in_clk2;
-input wire [RABITS-1:0] in_ra2;
+input wire [ABITS-1:0] in_ra2;
 input wire in_re2;
-input wire [WABITS-1:0] in_wa2;
-input wire [WDBITS-1:0] in_wd2;
+input wire [ABITS-1:0] in_wa2;
+input wire [DBITS-1:0] in_wd2;
 input wire in_we2;
 input wire [NBYTES-1:0] in_be2;
 
-  wire [RDBITS-1:0] gate_rd1;
-  wire [RDBITS-1:0] gold_rd1;
-  wire [RDBITS-1:0] gate_rd2;
-  wire [RDBITS-1:0] gold_rd2;
+  wire [DBITS-1:0] gate_rd1;
+  wire [DBITS-1:0] gold_rd1;
+  wire [DBITS-1:0] gate_rd2;
+  wire [DBITS-1:0] gold_rd2;
 
-  rand const reg [WABITS-1:0] rand_addr;
+  rand const reg [ABITS-1:0] rand_addr;
 
   gate gate (
     .clk1(in_clk1),

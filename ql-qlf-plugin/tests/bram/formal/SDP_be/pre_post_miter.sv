@@ -7,10 +7,10 @@ input wire clk;
 // input wire ce;
 input wire we;
 input wire [NBYTES-1:0] be;
-input wire [WABITS-1:0] wa;
-input wire [WDBITS-1:0] wd;
-input wire [RABITS-1:0] ra;
-output reg [RDBITS-1:0] rd;
+input wire [ABITS-1:0] wa;
+input wire [DBITS-1:0] wd;
+input wire [ABITS-1:0] ra;
+output reg [DBITS-1:0] rd;
 
 endmodule
 
@@ -21,10 +21,10 @@ input wire clk;
 // input wire ce;
 input wire we;
 input wire [NBYTES-1:0] be;
-input wire [WABITS-1:0] wa;
-input wire [WDBITS-1:0] wd;
-input wire [RABITS-1:0] ra;
-output reg [RDBITS-1:0] rd;
+input wire [ABITS-1:0] wa;
+input wire [DBITS-1:0] wd;
+input wire [ABITS-1:0] ra;
+output reg [DBITS-1:0] rd;
 
 endmodule
 
@@ -32,15 +32,15 @@ module miter(in_we, in_wd, in_wa, in_ra, in_clk, in_be);
 
   input [NBYTES-1:0] in_be;
   input in_clk;
-  input [RABITS-1:0] in_ra;
-  input [WABITS-1:0] in_wa;
-  input [WDBITS-1:0] in_wd;
+  input [ABITS-1:0] in_ra;
+  input [ABITS-1:0] in_wa;
+  input [DBITS-1:0] in_wd;
   input in_we;
 
-  wire [RDBITS-1:0] gate_rd;
-  wire [RDBITS-1:0] gold_rd;
+  wire [DBITS-1:0] gate_rd;
+  wire [DBITS-1:0] gold_rd;
 
-  rand const reg [WABITS-1:0] rand_addr;
+  rand const reg [ABITS-1:0] rand_addr;
 
   gate gate (
     .be(in_be),

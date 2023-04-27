@@ -1,7 +1,7 @@
 [options]
+multiclock on
 mode bmc
-depth 6
-multiclock off
+depth 8
 
 [engines]
 btor btormc
@@ -11,7 +11,7 @@ read_verilog -sv top.v
 prep -top top
 design -stash gold
 
-read_rtlil top.new.il
+read_verilog top.new.v
 read_verilog brams_sim.v TDP18K_FIFO.v ufifo_ctl.v sram1024x18_mem.v
 prep -top top
 design -stash gate
@@ -26,7 +26,7 @@ prep -top miter
 [files]
 params.vh
 top.v
-top.new.il
+top.new.v
 ../../../../qlf_k6n10f/brams_sim.v
 ../../../../qlf_k6n10f/TDP18K_FIFO.v
 ../../../../qlf_k6n10f/ufifo_ctl.v
