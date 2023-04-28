@@ -10,6 +10,7 @@ hierarchy -purge_lib
 write_rtlil top.old.il
 design -load pre_map
 debug memory_libmap -lib ../../../../qlf_k6n10f/libmap_brams.txt
+write_rtlil top.to_merge.il
 debug ql_bram_merge
 techmap -map ../../../../qlf_k6n10f/libmap_brams_map.v
 opt -full

@@ -31,23 +31,23 @@ PRIVATE_NAMESPACE_BEGIN
 
 struct QlBramMergeWorker {
 
-    const RTLIL::IdString split_cell_type = ID($__QLF_TDP36K_SPLIT);
+    const RTLIL::IdString split_cell_type = ID($__QLF_TDP36K);
     const RTLIL::IdString merged_cell_type = ID($__QLF_TDP36K_MERGED);
 
+    // can be used to record parameter values that have to match on both sides
     typedef dict<RTLIL::IdString, RTLIL::Const> MergeableGroupKeyType;
 
     RTLIL::Module *module;
-    SigMap sigmap;
-    dict<MergeableGroupKeyType, pool<RTLIL::Cell*>> megreable_groups;
+    dict<MergeableGroupKeyType, pool<RTLIL::Cell*>> mergeable_groups;
 
-    pool<RTLIL::Cell*> to_delete;
-
-    QlBramMergeWorker(RTLIL::Module* module) : module(module), sigmap(module)
+    QlBramMergeWorker(RTLIL::Module* module) : module(module)
     {
         for (RTLIL::Cell* cell : module->selected_cells())
         {
             if(cell->type != split_cell_type) continue;
-            megreable_groups[get_key(cell)].insert(cell);
+            if(!cell->hasParam(ID(OPTION_SPLIT))) continue;
+            if(cell->getParam(ID(OPTION_SPLIT)) != RTLIL::Const(1, 32)) continue;
+            mergeable_groups[get_key(cell)].insert(cell);
         }
     }
 
@@ -61,13 +61,15 @@ struct QlBramMergeWorker {
     {
         static const dict<RTLIL::IdString, RTLIL::IdString> bram1_map = {
             { ID(INIT),                     ID(INIT1) },
-            { ID(WIDTH),                    ID(WIDTH1) },
+            { ID(PORT_A_WIDTH),             ID(PORT_A1_WIDTH) },
+            { ID(PORT_B_WIDTH),             ID(PORT_B1_WIDTH) },
             { ID(PORT_A_WR_BE_WIDTH),       ID(PORT_A1_WR_BE_WIDTH) },
             { ID(PORT_B_WR_BE_WIDTH),       ID(PORT_B1_WR_BE_WIDTH) }
         };
         static const dict<RTLIL::IdString, RTLIL::IdString> bram2_map = {
             { ID(INIT),                     ID(INIT2) },
-            { ID(WIDTH),                    ID(WIDTH2) },
+            { ID(PORT_A_WIDTH),             ID(PORT_A2_WIDTH) },
+            { ID(PORT_B_WIDTH),             ID(PORT_B2_WIDTH) },
             { ID(PORT_A_WR_BE_WIDTH),       ID(PORT_A2_WR_BE_WIDTH) },
             { ID(PORT_B_WR_BE_WIDTH),       ID(PORT_B2_WR_BE_WIDTH) }
         };
@@ -139,30 +141,34 @@ struct QlBramMergeWorker {
 
         for (auto &it : port_map(false))
         {
-            merged->setPort(it.second, bram1->getPort(it.first));
+            if (bram1->hasPort(it.first))
+                merged->setPort(it.second, bram1->getPort(it.first));
+            else
+                log_error("Can't find port %s on cell %s!\n", log_id(it.first), log_id(bram1->name));
         }
         for (auto &it : port_map(true))
         {
-            merged->setPort(it.second, bram2->getPort(it.first));
+            if (bram2->hasPort(it.first))
+                merged->setPort(it.second, bram2->getPort(it.first));
+            else
+                log_error("Can't find port %s on cell %s!\n", log_id(it.first), log_id(bram2->name));
         }
 
         // Remove the old cells
-        to_delete.insert(bram1);
-        to_delete.insert(bram2);
+        module->remove(bram1);
+        module->remove(bram2);
 
     }
 
     void merge_bram_groups()
     {
-        for (auto &it : megreable_groups)
+        for (auto &it : mergeable_groups)
         {
             while (it.second.size() > 1)
             {
                 merge_brams(it.second.pop(), it.second.pop());
             }
         }
-        for (auto c: to_delete)
-            module->remove(c);
     }
 
 };
