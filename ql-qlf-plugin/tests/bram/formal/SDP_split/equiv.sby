@@ -1,10 +1,15 @@
+[tasks]
+bmc
+cover
+
 [options]
+bmc: mode bmc
+cover: mode cover
 multiclock on
-mode bmc
 depth 10
 
 [engines]
-btor btormc
+smtbmc bitwuzla
 
 [script]
 read_verilog -sv top.v

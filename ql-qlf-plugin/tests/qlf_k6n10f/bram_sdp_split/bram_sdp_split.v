@@ -35,12 +35,12 @@ parameter DWIDTH = 32)(
 			memory[wa] <= wd;
 	end
 
-	// integer i;
-	// initial
-	// begin
-	// 	for(i = 0; i < (1<<AWIDTH)-1; i = i + 1)
-	// 		memory[i] = 0;
-	// end
+	integer i;
+	initial
+	begin
+		for(i = 0; i < (1<<AWIDTH)-1; i = i + 1)
+			memory[i] = 0;
+	end
 
 endmodule
 

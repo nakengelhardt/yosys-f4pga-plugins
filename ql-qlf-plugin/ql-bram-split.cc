@@ -231,6 +231,7 @@ struct QlBramSplitPass : public Pass {
         for (auto module : a_Design->selected_modules()) {
 
             // Setup the SigMap
+            m_SigMap.clear();
             m_SigMap.set(module);
 
             // Assemble BRAM cell groups

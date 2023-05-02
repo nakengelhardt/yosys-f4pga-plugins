@@ -76,14 +76,17 @@ input wire in_we_b;
   reg content_defined = 1'b0;
 
   always @(posedge in_clk) begin
-    if (in_we_a && in_a_a == rand_addr && in_we_b && in_a_b == rand_addr) begin
-      content_defined <= 1'b0;
+    if(in_we_a && in_a_a == rand_addr) begin
+      assume property (in_we_b |-> in_a_a != in_a_b); // no collision
+      content_defined <= 1'b1;
     end
-    else if(in_we_a && in_a_a == rand_addr || in_we_b && in_a_b == rand_addr) begin
+    if(in_we_b && in_a_b == rand_addr) begin
+      assume property (in_we_a |-> in_a_a != in_a_b); // no collision
       content_defined <= 1'b1;
     end
     assert property (content_defined && (in_a_a == rand_addr) && !(in_we_b && in_a_b == rand_addr) |=> gold_rd_a == gate_rd_a);
     assert property (content_defined && (in_a_b == rand_addr) && !(in_we_a && in_a_a == rand_addr) |=> gold_rd_b == gate_rd_b);
-    // cover property (content_defined && (in_ra == rand_addr) && !(in_we && in_wa == in_ra));
+    cover property (content_defined && (in_a_a == rand_addr) && !(in_we_b && in_a_b == rand_addr) ##1 gold_rd_a == gate_rd_a);
+    cover property (content_defined && (in_a_b == rand_addr) && !(in_we_a && in_a_a == rand_addr) ##1 gold_rd_b == gate_rd_b);
   end
 endmodule

@@ -117,48 +117,40 @@ assign {BE_B2_i, BE_B1_i} = PORT_B_WR_BE;
 case (PORT_A_WIDTH)
 9: assign { WDATA_A1_i[16], WDATA_A1_i[7:0] } = PORT_A_WR_DATA;
 18: assign { WDATA_A1_i[17], WDATA_A1_i[15:8], WDATA_A1_i[16], WDATA_A1_i[7:0] } = PORT_A_WR_DATA;
-32: assign { WDATA_A2_i[15:0], WDATA_A1_i[15:0] } = PORT_A_WR_DATA;
 36: assign { WDATA_A2_i[17], WDATA_A2_i[15:8], WDATA_A2_i[16], WDATA_A2_i[7:0], WDATA_A1_i[17], WDATA_A1_i[15:8], WDATA_A1_i[16], WDATA_A1_i[7:0]} = PORT_A_WR_DATA;
-default: assign WDATA_A1_i = PORT_A_WR_DATA; // 1,2,4,8,16
+default: assign WDATA_A1_i = PORT_A_WR_DATA; // 1,2,4
 endcase
 
 case (PORT_B_WIDTH)
 9: assign { WDATA_B1_i[16], WDATA_B1_i[7:0] } = PORT_B_WR_DATA;
 18: assign { WDATA_B1_i[17], WDATA_B1_i[15:8], WDATA_B1_i[16], WDATA_B1_i[7:0] } = PORT_B_WR_DATA;
-32: assign { WDATA_B2_i[15:0], WDATA_B1_i[15:0] } = PORT_B_WR_DATA;
 36: assign { WDATA_B2_i[17], WDATA_B2_i[15:8], WDATA_B2_i[16], WDATA_B2_i[7:0], WDATA_B1_i[17], WDATA_B1_i[15:8], WDATA_B1_i[16], WDATA_B1_i[7:0]} = PORT_B_WR_DATA;
-default: assign WDATA_B1_i = PORT_B_WR_DATA; // 1,2,4,8,16
+default: assign WDATA_B1_i = PORT_B_WR_DATA; // 1,2,4
 endcase
 
 case (PORT_A_WIDTH)
 9: assign PORT_A_RD_DATA = { RDATA_A1_o[16], RDATA_A1_o[7:0] };
 18: assign PORT_A_RD_DATA = { RDATA_A1_o[17], RDATA_A1_o[15:8], RDATA_A1_o[16], RDATA_A1_o[7:0] };
-32: assign PORT_A_RD_DATA = { RDATA_A2_o[15:0], RDATA_A1_o[15:0] };
 36: assign PORT_A_RD_DATA = { RDATA_A2_o[17], RDATA_A2_o[15:8], RDATA_A2_o[16], RDATA_A2_o[7:0], RDATA_A1_o[17], RDATA_A1_o[15:8], RDATA_A1_o[16], RDATA_A1_o[7:0]};
-default: assign PORT_A_RD_DATA = RDATA_A1_o; // 1,2,4,8,16
+default: assign PORT_A_RD_DATA = RDATA_A1_o; // 1,2,4
 endcase
 
 case (PORT_B_WIDTH)
 9: assign PORT_B_RD_DATA = { RDATA_B1_o[16], RDATA_B1_o[7:0] };
 18: assign PORT_B_RD_DATA = { RDATA_B1_o[17], RDATA_B1_o[15:8], RDATA_B1_o[16], RDATA_B1_o[7:0] };
-32: assign PORT_B_RD_DATA = { RDATA_B2_o[15:0], RDATA_B1_o[15:0] };
 36: assign PORT_B_RD_DATA = { RDATA_B2_o[17], RDATA_B2_o[15:8], RDATA_B2_o[16], RDATA_B2_o[7:0], RDATA_B1_o[17], RDATA_B1_o[15:8], RDATA_B1_o[16], RDATA_B1_o[7:0]};
-default: assign PORT_B_RD_DATA = RDATA_B1_o; // 1,2,4,8,16
+default: assign PORT_B_RD_DATA = RDATA_B1_o; // 1,2,4
 endcase
 
-if (OPTION_SPLIT == 0)
-	defparam _TECHMAP_REPLACE_.MODE_BITS = { 1'b0,
-				UPAF2_i, UPAE2_i, PROTECT2_i, SLEEP2_i, POWERDN2_i, FMODE2_i, WMODE_B2_i, WMODE_A2_i, RMODE_B2_i, RMODE_A2_i, SYNC_FIFO2_i,
-				UPAF1_i, UPAE1_i, PROTECT1_i, SLEEP1_i, POWERDN1_i, FMODE1_i, WMODE_B1_i, WMODE_A1_i, RMODE_B1_i, RMODE_A1_i, SYNC_FIFO1_i
-			};
-else
-	defparam _TECHMAP_REPLACE_.MODE_BITS = { 1'b1,
-				UPAF2_i, UPAE2_i, PROTECT2_i, SLEEP2_i, POWERDN2_i, FMODE2_i, WMODE_B2_i, WMODE_A2_i, RMODE_B2_i, RMODE_A2_i, SYNC_FIFO2_i,
-				UPAF1_i, UPAE1_i, PROTECT1_i, SLEEP1_i, POWERDN1_i, FMODE1_i, WMODE_B1_i, WMODE_A1_i, RMODE_B1_i, RMODE_A1_i, SYNC_FIFO1_i
-			};
+defparam _TECHMAP_REPLACE_.MODE_BITS = { 1'b0,
+	UPAF2_i, UPAE2_i, PROTECT2_i, SLEEP2_i, POWERDN2_i, FMODE2_i, WMODE_B2_i, WMODE_A2_i, RMODE_B2_i, RMODE_A2_i, SYNC_FIFO2_i,
+	UPAF1_i, UPAE1_i, PROTECT1_i, SLEEP1_i, POWERDN1_i, FMODE1_i, WMODE_B1_i, WMODE_A1_i, RMODE_B1_i, RMODE_A1_i, SYNC_FIFO1_i
+};
 
 (* is_inferred = 1 *)
-(* is_split = OPTION_SPLIT *)
+(* is_split = 0 *)
+(* port_a_width = PORT_A_WIDTH *)
+(* port_b_width = PORT_B_WIDTH *)
 TDP36K _TECHMAP_REPLACE_ (
 	.RESET_ni(1'b1),
 
@@ -405,6 +397,10 @@ defparam _TECHMAP_REPLACE_.MODE_BITS = {1'b1,
 
 (* is_inferred = 1 *)
 (* is_split = 1 *)
+(* port_a1_width = PORT_A1_WIDTH *)
+(* port_a2_width = PORT_A2_WIDTH *)
+(* port_b1_width = PORT_B1_WIDTH *)
+(* port_b2_width = PORT_B2_WIDTH *)
 TDP36K _TECHMAP_REPLACE_ (
 	.RESET_ni(1'b1),
 	.WDATA_A1_i(WDATA_A1_i),

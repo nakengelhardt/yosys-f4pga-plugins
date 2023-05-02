@@ -1,6 +1,11 @@
+[tasks]
+bmc
+cover
+
 [options]
+bmc: mode bmc
+cover: mode cover
 multiclock on
-mode bmc
 depth 8
 
 [engines]
@@ -11,7 +16,7 @@ read_verilog -sv top.v
 prep -top top
 design -stash gold
 
-read_verilog top.new.v
+read_rtlil top.new.il
 read_verilog brams_sim.v TDP18K_FIFO.v ufifo_ctl.v sram1024x18_mem.v
 prep -top top
 design -stash gate
@@ -26,7 +31,7 @@ prep -top miter
 [files]
 params.vh
 top.v
-top.new.v
+top.new.il
 ../../../../qlf_k6n10f/brams_sim.v
 ../../../../qlf_k6n10f/TDP18K_FIFO.v
 ../../../../qlf_k6n10f/ufifo_ctl.v

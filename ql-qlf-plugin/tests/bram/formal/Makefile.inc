@@ -11,6 +11,6 @@ $(QL_PLUGIN):
 	make -C $(BASE_DIR)
 
 clean:
-	rm -rf top.*.il top.new top.old equiv top.log top.new.v
+	rm -rf top.*.il top.new top.debug top.log top.new.v equiv equiv_bmc equiv_cover
 
 .PHONY: formal clean

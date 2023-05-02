@@ -54,6 +54,8 @@ struct QlBramMergeWorker {
     static MergeableGroupKeyType get_key(RTLIL::Cell* cell)
     {
         MergeableGroupKeyType key;
+        // For now, there are no restrictions on which cells can be merged
+        (void) cell;
         return key;
     }
 
@@ -153,6 +155,10 @@ struct QlBramMergeWorker {
             else
                 log_error("Can't find port %s on cell %s!\n", log_id(it.first), log_id(bram2->name));
         }
+        merged->attributes = bram1->attributes;
+        for (auto attr: bram2->attributes)
+            if (!merged->has_attribute(attr.first))
+                merged->attributes.insert(attr);
 
         // Remove the old cells
         module->remove(bram1);
@@ -193,6 +199,9 @@ struct QlBramMergePass : public Pass {
     void execute(std::vector<std::string> args, RTLIL::Design *design) override
     {
         log_header(design, "Executing QL_BRAM_MERGE pass.\n");
+
+        size_t argidx = 1;
+        extra_args(args, argidx, design);
 
         for (RTLIL::Module* module : design->selected_modules())
         {

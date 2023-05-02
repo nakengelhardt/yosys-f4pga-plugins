@@ -1,7 +1,7 @@
-localparam ABITS = 10;
-localparam DBITS = 18;
+localparam ABITS = 8;
+localparam DBITS = 32;
 
 localparam DEPTH = 2**ABITS;
 
-localparam BYTEWIDTH = 9;
+localparam BYTEWIDTH = 8;
 localparam NBYTES = DBITS/BYTEWIDTH;

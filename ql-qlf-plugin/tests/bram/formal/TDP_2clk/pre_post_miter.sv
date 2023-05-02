@@ -80,22 +80,23 @@ input wire in_we_b;
 
   reg written_a = 1'b0;
   reg written_b = 1'b0;
+  wire written = written_a || written_b;
 
   always @(posedge in_clk_a) begin
     if(in_we_a && in_a_a == rand_addr) begin
       assume property (in_we_b |-> in_a_a != in_a_b); // no collision
       written_a <= 1'b1;
     end
-    assert property ((written_a || written_b) && (in_a_a == rand_addr) && !(in_a_b == rand_addr && in_we_b) |=> gold_rd_a == gate_rd_a);
-    // cover property (written && (in_ra == rand_addr) && !(in_we && in_wa == in_ra));
+    assert property (written && (in_a_a == rand_addr) && !(in_a_b == rand_addr && in_we_b) |=> gold_rd_a == gate_rd_a);
+    cover property (written && (in_a_a == rand_addr) && !(in_a_b == rand_addr && in_we_b) ##1 gold_rd_a == gate_rd_a);
   end
   always @(posedge in_clk_b) begin
     if(in_we_b && in_a_b == rand_addr) begin
       assume property (in_we_a |-> in_a_a != in_a_b); // no collision
       written_b <= 1'b1;
     end
-    assert property ((written_a || written_b) && (in_a_b == rand_addr) && !(in_a_a == rand_addr && in_we_a) |=> gold_rd_b == gate_rd_b);
-    // cover property (written && (in_ra == rand_addr) && !(in_we && in_wa == in_ra));
+    assert property (written && (in_a_b == rand_addr) && !(in_a_a == rand_addr && in_we_a) |=> gold_rd_b == gate_rd_b);
+    cover property (written && (in_a_b == rand_addr) && !(in_a_a == rand_addr && in_we_a) ##1 gold_rd_b == gate_rd_b);
   end
 
 endmodule
